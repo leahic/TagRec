@@ -1,4 +1,1 @@
-# idea intellij
-.idea
-*.iml
-/bin/
+data/*/ml_core/*

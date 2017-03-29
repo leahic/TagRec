@@ -2,6 +2,13 @@
 import sys
 import random
 
+
+def str_getuser(s):
+    return s.split(';')[0].replace('"','')
+
+def str_gettime(s):
+    return int(s.split(';')[2].replace('"',''))
+
 if __name__ == '__main__':
     print sys.argv[1]
     print sys.argv[2]
@@ -13,26 +20,27 @@ if __name__ == '__main__':
     f3 = file(sys.argv[3] , 'w')
 
     s = f1.readlines()
-    tot = len(s)
-    print 'tot' , tot , ' lines'
-    train_num = int(0.8 * tot)
-    test_num = tot - train_num
-    print 'train' , train_num , ' samples'
-    print 'test' , test_num , ' samples'
 
-    train_sample_list = set(random.sample(range(tot) , train_num))
+    Records = dict()
 
-    f = file('sample.log','w')
-    f.write( 'tot ' + str(tot) + '  lines\n' )
-    f.write( 'train ' + str(train_num) + '  samples\n' )
-    f.write( 'test ' + str(test_num) + '  samples\n' )
-    for x in train_sample_list: f.write( str(x) + '\n')
-    f.close()
-
-    for s_index , line in enumerate(s):
-        if s_index in train_sample_list:
-            f2.write(line)
+    for line in s:
+        user = str_getuser(line)
+        if user in Records:
+            Records[user].append(line)
         else:
+            Records[user] = [line]
+
+    Userlist = sorted(Records.keys() , key = lambda x : int(x))
+    for user_index , user in enumerate(Userlist):
+        raw = Records[user]
+        raw = sorted(raw , key = lambda x : str_gettime(x))
+        itemnums = len(raw)
+        testnums = int(itemnums * 0.2)
+        trainnums = itemnums - testnums
+        for line in raw[0:trainnums]:
+            f2.write(line)
+        for line in raw[trainnums:-1]:
             f3.write(line)
+
     f2.close()
     f3.close()
